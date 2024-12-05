@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>XCSourceEditorExtensionPrincipalClass</key>
+    <string>$(PRODUCT_MODULE_NAME).FileURLExtension</string>
+    <key>XCSourceEditorExtensionCommandDefinitions</key>
+    <array>
+        <dict>
+            <key>XCSourceEditorCommandClassName</key>
+            <string>$(PRODUCT_MODULE_NAME).FileURLCommand</string>
+            <key>XCSourceEditorCommandIdentifier</key>
+            <string>$(PRODUCT_BUNDLE_IDENTIFIER).OpenFileURL</string>
+            <key>XCSourceEditorCommandName</key>
+            <string>Open File URL</string>
+        </dict>
+    </array>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>需要访问权限以打开文件</string>
+    <key>com.apple.security.temporary-exception.apple-events</key>
+    <string>com.apple.finder</string>
+</dict>
+</plist> 

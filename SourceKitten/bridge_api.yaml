@@ -1,0 +1,76 @@
+# 全局配置
+config:
+  version: "1.0.0"
+  prefix: "bridge"
+  platform: "iOS"
+
+# API 分组
+groups:
+  auth:
+    name: 认证相关
+    apis:
+      login:
+        description: 调用原生登录界面
+        swift_method: login(_:_:)
+        parameters:
+          username:
+            type: String
+            description: 用户名
+            required: true
+          password:
+            type: String
+            description: 密码
+            required: true
+        returns:
+          type: Promise<Object>
+          description: 返回登录结果
+        example: |
+          await bridge.login('user', '123456')
+
+  user:
+    name: 用户相关
+    apis:
+      getUserInfo:
+        description: 获取当前用户信息
+        swift_method: getUserInfo()
+        returns:
+          type: Promise<Object>
+          description: 返回用户信息对象
+        example: |
+          const userInfo = await bridge.getUserInfo()
+
+  media:
+    name: 媒体相关
+    apis:
+      uploadImage:
+        description: 上传图片到服务器
+        swift_method: uploadImage(_:type:options:)
+        parameters:
+          imageData:
+            type: Base64
+            description: 图片的base64数据
+            required: true
+          type:
+            type: String
+            description: 图片类型
+            options: 
+              - avatar
+              - post
+            required: true
+          options:
+            type: Object
+            description: 可选配置参数
+            required: false
+            properties:
+              compress:
+                type: Boolean
+                description: 是否压缩
+                default: false
+              maxSize:
+                type: Number
+                description: 最大尺寸
+                default: 1024
+        returns:
+          type: Promise<String>
+          description: 返回图片URL
+        throws: 如果上传失败则抛出错误
