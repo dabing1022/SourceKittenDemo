@@ -1,0 +1,62 @@
+api :uploadImage do
+  summary "上传图片到服务器"
+
+  tags ["image", "upload"]
+  
+  params do
+    imageData type: "string | string[]", optional: false, description: "图片的base64数据,支持单张或多张图片"
+    type type: "string", optional: false, description: "图片类型", options: ["avatar", "post"]
+    config type: "object", optional: true, description: "上传配置" do
+      chunkSize type: "Number", optional: true, description: "分片大小(bytes)"
+      compress type: "Boolean", optional: true, description: "是否压缩"
+      maxSize type: "Number", optional: true, description: "最大尺寸"
+      tags type: "string[]", optional: true, description: "图片标签"
+      categories type: "string[]", optional: true, description: "图片分类"
+    end
+  end
+
+  response do
+      taskId type: "string", description: "上传任务ID"
+      fileName type: "string", description: "文件名"
+      totalSize type: "Number", description: "文件总大小"
+      chunks type: "Number", description: "分片数量"
+      fileIndex type: "Number", optional: true, description: "在批量上传中的索引"
+  end
+
+  warnings << "上传过程中可以通过 taskId 来取消或暂停上传"
+
+  example <<-EXAMPLE
+    # 单张图片上传
+    uploader = imageUploader.upload(
+      imageData: base64Data,
+      type: "avatar",
+      config: { compress: true }
+    )
+    
+    uploader.onProgress do |progress|
+      puts "Upload progress: \#{progress.progress}%"
+    end
+    
+    result = uploader.result
+    puts "Uploaded image URL: \#{result.url}"
+
+    # 多张图片上传
+    uploader = imageUploader.upload(
+      imageData: [base64Data1, base64Data2],
+      type: "post",
+      config: {
+        compress: true,
+        tags: ["vacation", "summer"]
+      }
+    )
+
+    uploader.onProgress do |progress|
+      puts "Uploaded \#{progress.uploadedFiles}/\#{progress.totalFiles} files"
+    end
+
+    results = uploader.result
+    results.each do |result|
+      puts "Uploaded image URL: \#{result.url}"
+    end
+  EXAMPLE
+end

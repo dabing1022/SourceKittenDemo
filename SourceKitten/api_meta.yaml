@@ -1,0 +1,185 @@
+uploadImage:
+  summary: "上传图片到服务器"
+  params:
+    imageData:
+      type: "String | String[]"
+      optional: false
+      description: "图片的base64数据,支持单张或多张图片"
+    type:
+      type: "String"
+      optional: false
+      description: "图片类型"
+      options: ["avatar", "post"]
+    config:
+      type: "Object"
+      optional: true
+      description: "上传配置"
+      properties:
+        chunkSize:
+          type: "Number"
+          optional: true
+          description: "分片大小(bytes)"
+        compress:
+          type: "Boolean"
+          optional: true
+          description: "是否压缩"
+        maxSize:
+          type: "Number"
+          optional: true
+          description: "最大尺寸"
+        tags:
+          type: "String[]"
+          optional: true
+          description: "图片标签"
+        categories:
+          type: "String[]"
+          optional: true
+          description: "图片分类"
+  returns:
+    onStart:
+      type: "UploadTask | UploadTask[]"
+      description: "开始上传时的返回值,单张返回单个任务,多张返回任务数组"
+      properties:
+        taskId:
+          type: "String"
+          description: "上传任务ID"
+        fileName:
+          type: "String"
+          description: "文件名"
+        totalSize:
+          type: "Number"
+          description: "文件总大小"
+        chunks:
+          type: "Number"
+          description: "分片数量"
+        fileIndex:
+          type: "Number"
+          optional: true
+          description: "在批量上传中的索引"
+    onProgress:
+      type: "UploadProgress"
+      description: "上传进度回调"
+      properties:
+        taskId:
+          type: "String"
+          description: "上传任务ID"
+        uploadedSize:
+          type: "Number"
+          description: "已上传大小"
+        totalSize:
+          type: "Number"
+          description: "文件总大小"
+        progress:
+          type: "Number"
+          description: "上传进度(0-100)"
+        currentChunk:
+          type: "Number"
+          description: "当前分片索引"
+        uploadedFiles:
+          type: "Number"
+          optional: true
+          description: "批量上传时已完成的文件数"
+        totalFiles:
+          type: "Number"
+          optional: true
+          description: "批量上传时的总文件数"
+    onSuccess:
+      type: "UploadResult | UploadResult[]"
+      description: "上传成功回调,单张返回单个结果,多张返回结果数组"
+      properties:
+        url:
+          type: "String"
+          description: "图片URL"
+        width:
+          type: "Number"
+          description: "图片宽度"
+        height:
+          type: "Number"
+          description: "图片高度"
+        size:
+          type: "Number"
+          description: "文件大小"
+        meta:
+          type: "Object"
+          description: "元数据"
+          properties:
+            mimeType:
+              type: "String"
+              description: "文件类型"
+            lastModified:
+              type: "String"
+              description: "最后修改时间"
+            md5:
+              type: "String"
+              description: "文件MD5值"
+            tags:
+              type: "String[]"
+              optional: true
+              description: "图片标签"
+            categories:
+              type: "String[]"
+              optional: true
+              description: "图片分类"
+    onError:
+      type: "UploadError"
+      description: "上传失败回调"
+      properties:
+        code:
+          type: "Number"
+          description: "错误码"
+        message:
+          type: "String"
+          description: "错误信息"
+        details:
+          type: "Object"
+          optional: true
+          description: "详细错误信息"
+          properties:
+            failedChunk:
+              type: "Number"
+              optional: true
+              description: "失败的分片索引"
+            retryable:
+              type: "Boolean"
+              description: "是否可重试"
+            failedFiles:
+              type: "String[]"
+              optional: true
+              description: "批量上传时失败的文件名列表"
+  throws: "如果初始化上传失败则抛出错误"
+  note: "上传过程中可以通过 taskId 来取消或暂停上传"
+  example: |
+    ```swift
+    // 单张图片上传
+    let uploader = try imageUploader.upload(
+      imageData: base64Data,
+      type: "avatar",
+      config: ["compress": true]
+    )
+    
+    uploader.onProgress { progress in
+      print("Upload progress: \(progress.progress)%")
+    }
+    
+    let result = try await uploader.result
+    print("Uploaded image URL: \(result.url)")
+
+    // 多张图片上传
+    let uploader = try imageUploader.upload(
+      imageData: [base64Data1, base64Data2],
+      type: "post",
+      config: [
+        "compress": true,
+        "tags": ["vacation", "summer"]
+      ]
+    )
+
+    uploader.onProgress { progress in
+      print("Uploaded \(progress.uploadedFiles)/\(progress.totalFiles) files")
+    }
+
+    let results = try await uploader.result
+    results.forEach { result in
+      print("Uploaded image URL: \(result.url)")
+    }
+    ```
